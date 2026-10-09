@@ -48,10 +48,14 @@ export default function App() {
   return (
     <div className="app">
       <div className="side">
-        <h1>🚚 Weather-Aware Truck Routing</h1>
-        <TripForm onSubmit={handleSubmit} busy={busy} />
-        {err && <div className="err">{err}</div>}
-        <RouteResults data={data} sel={sel} setSel={setSel} />
+        <div className="side-header">
+          <h1>🚚 <span>Weather-Aware</span> Truck Routing</h1>
+        </div>
+        <div className="side-content">
+          <TripForm onSubmit={handleSubmit} busy={busy} />
+          {err && <div className="err">{err}</div>}
+          <RouteResults data={data} sel={sel} setSel={setSel} />
+        </div>
       </div>
       <div className="mapwrap">
         <MapContainer className="map" center={[39.5, -98.35]} zoom={4} preferCanvas>
@@ -75,14 +79,22 @@ export default function App() {
           {data && heat && <Heat points={heatPts} />}
         </MapContainer>
         {data && (
-          <div className="slider">
-            <label style={{ margin: 0 }}>
-              Heatmap forecast: +{hour} h after departure ({fmt(new Date(new Date(route.checkpoints[0].eta).getTime() + hour * 36e5))})
-              <span style={{ float: 'right' }}>
-                <input type="checkbox" style={{ width: 'auto' }} checked={heat} onChange={e => setHeat(e.target.checked)} /> show
+          <div className="slider-panel">
+            <div className="slider-header">
+              <span>Heatmap Forecast</span>
+              <span className="slider-time">
+                +{hour}h ({fmt(new Date(new Date(route.checkpoints[0].eta).getTime() + hour * 36e5))})
               </span>
-            </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', margin: 0 }}>
+                <input type="checkbox" style={{ width: 'auto' }} checked={heat} onChange={e => setHeat(e.target.checked)} /> Show
+              </label>
+            </div>
             <input type="range" min="0" max="48" value={hour} onChange={e => setHour(+e.target.value)} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              <span>Departure</span>
+              <span>+24h</span>
+              <span>+48h</span>
+            </div>
           </div>
         )}
       </div>
