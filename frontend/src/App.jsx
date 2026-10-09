@@ -24,7 +24,7 @@ function Heat({ points }) {
 
 function Fit({ geoms }) {
   const map = useMap()
-  useEffect(() => { 
+  useEffect(() => {
     if (geoms.length) {
       const bounds = L.latLngBounds(geoms.flat())
       if (bounds.isValid()) {
