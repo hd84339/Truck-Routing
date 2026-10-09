@@ -3,8 +3,10 @@ from datetime import datetime, timedelta, timezone
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from . import risk, services
+from . import services
 import weather.services
+import risk
+import recommendations
 
 HEAT_HOURS = 48
 
@@ -54,12 +56,8 @@ def plan(request):
         s.update(distance_mi=round(r["distance_mi"], 1), eta=cps[-1]["eta"])
         out.append({"id": idx, "summary": s, "geometry": g, "checkpoints": cps})
 
-    ranked = sorted(out, key=lambda x: risk.rank_key(x["summary"]))
+    ranked = sorted(out, key=lambda x: recommendations.rank_key(x["summary"]))
     best = ranked[0]
-    why = [f"{best['summary']['severe_mi'] + best['summary']['no_travel_mi']} Severe+ mi",
-           f"{best['summary']['high_mi']} High mi", f"avg risk {best['summary']['avg_risk']}",
-           f"{best['summary']['duration_h']} h"]
-    if best["summary"]["no_travel_mi"]: why.insert(0, "WARNING: every route hits No-Travel conditions")
     for rank, x in enumerate(ranked): x["rank"] = rank + 1
     return JsonResponse({"origin": o, "destination": d, "routes": out, "recommended": best["id"],
-                         "explanation": "Fewest Severe -> High -> avg risk -> time: " + ", ".join(why)})
+                         "explanation": recommendations.get_explanation(best["summary"])})
