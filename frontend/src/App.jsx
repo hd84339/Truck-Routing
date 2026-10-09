@@ -24,7 +24,14 @@ function Heat({ points }) {
 
 function Fit({ geoms }) {
   const map = useMap()
-  useEffect(() => { if (geoms.length) map.fitBounds(L.latLngBounds(geoms.flat()), { padding: [40, 40] }) }, [geoms, map])
+  useEffect(() => { 
+    if (geoms.length) {
+      const bounds = L.latLngBounds(geoms.flat())
+      if (bounds.isValid()) {
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 9 })
+      }
+    } 
+  }, [geoms, map])
   return null
 }
 
@@ -47,17 +54,18 @@ export default function App() {
 
   return (
     <div className="app">
-      <div className="side">
-        <div className="side-header">
-          <h1>🚚 <span>Weather-Aware</span> Truck Routing</h1>
+      <header className="dashboard-header">
+        <h1>🚚 <span>Weather-Aware</span> Truck Routing</h1>
+      </header>
+      <div className="dashboard-content">
+        <div className="side">
+          <div className="side-content">
+            <TripForm onSubmit={handleSubmit} busy={busy} />
+            {err && <div className="err">{err}</div>}
+            <RouteResults data={data} sel={sel} setSel={setSel} />
+          </div>
         </div>
-        <div className="side-content">
-          <TripForm onSubmit={handleSubmit} busy={busy} />
-          {err && <div className="err">{err}</div>}
-          <RouteResults data={data} sel={sel} setSel={setSel} />
-        </div>
-      </div>
-      <div className="mapwrap">
+        <div className="mapwrap">
         <MapContainer className="map" center={[39.5, -98.35]} zoom={4} preferCanvas>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="© OpenStreetMap" />
           <Fit geoms={geoms} />
@@ -99,5 +107,6 @@ export default function App() {
         )}
       </div>
     </div>
+  </div>
   )
 }
