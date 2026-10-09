@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from . import risk, services
+import weather.services
 
 HEAT_HOURS = 48
 
@@ -31,7 +32,7 @@ def plan(request):
     # one batched weather call for every checkpoint of every route
     sampled = [services.sample_checkpoints(r["geometry"], r["distance_mi"], step) for r in routes]
     flat = [p for _, pts in sampled for p in pts]
-    try: wx = services.fetch_weather(flat)
+    try: wx = weather.services.fetch_weather(flat)
     except Exception as e: return JsonResponse({"error": f"Weather service error: {e}"}, status=502)
 
     out, k = [], 0

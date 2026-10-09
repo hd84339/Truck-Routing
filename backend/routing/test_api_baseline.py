@@ -28,7 +28,7 @@ class ApiBaselineTests(unittest.TestCase):
             "geometry": [(41.8, -87.6), (39.7, -104.9)]
         }
 
-    @patch('routing.services.fetch_weather')
+    @patch('weather.services.fetch_weather')
     @patch('routing.services.get_routes')
     @patch('routing.services.geocode')
     def test_plan_success(self, mock_geocode, mock_get_routes, mock_fetch_weather):
