@@ -1,5 +1,7 @@
 export async function planTripApi(formData) {
-  const r = await fetch('/api/plan', {
+  const baseUrl = import.meta.env.VITE_API_URL || ''
+  const endpoint = `${baseUrl.replace(/\/+$/, '')}/api/plan`
+  const r = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

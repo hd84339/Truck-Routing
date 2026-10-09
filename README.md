@@ -24,18 +24,38 @@ npm install
 npm run dev
 ```
 
-## Deployment
-This app uses a multi-stage Docker build to serve both the frontend and backend from a single container.
-```bash
-docker build -t truck-routing .
-docker run -p 8000:8000 truck-routing
-```
-**Environment Variables**:
-- `DEBUG=False` (recommended for production)
-- `DJANGO_SECRET_KEY` (must be securely set in production)
-- `ALLOWED_HOSTS` (comma-separated list of domains)
+## Deployment Guide
+This project is configured for deployment with **Vercel** (Frontend) and **Render** (Backend).
 
-You can host this Docker image on any container platform like Render, Fly.io, or Railway.
+### 1. Deploy the Backend (Render)
+Create a new **Web Service** on Render connected to this repository.
+- **Root Directory**: `backend`
+- **Environment**: Python
+- **Build Command**: `./build.sh` (or `pip install -r requirements.txt && python manage.py check --deploy`)
+- **Start Command**: `gunicorn config.wsgi --bind 0.0.0.0:$PORT`
+- **Environment Variables**:
+  - `DEBUG`: `False`
+  - `DJANGO_SECRET_KEY`: A strong, random string
+  - `ALLOWED_HOSTS`: `<your-render-url>.onrender.com` (you will add the Vercel URL later if needed)
+  - `CORS_ALLOWED_ORIGINS`: `<your-vercel-url>.vercel.app` (set this after deploying Vercel!)
+
+Once deployed, verify that `<your-render-url>/api/plan` exists (it should return 405 Method Not Allowed on GET, but the server is up).
+
+### 2. Deploy the Frontend (Vercel)
+Create a new project on Vercel connected to this repository.
+- **Framework Preset**: Vite
+- **Root Directory**: `frontend`
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **Environment Variables**:
+  - `VITE_API_URL`: The URL of your deployed Render backend (e.g., `https://truck-routing-api.onrender.com`). Do not append `/api/plan`.
+
+Deploy the frontend. Vercel will automatically configure the routing (via `vercel.json`).
+**Important Note:** Make sure you update the backend's `CORS_ALLOWED_ORIGINS` on Render with your new Vercel URL, otherwise the API requests will be blocked by CORS!
+
+### Common Troubleshooting
+- **CORS Errors**: Double-check `CORS_ALLOWED_ORIGINS` on Render exactly matches your Vercel URL (include `https://` but no trailing slash).
+- **Backend 500 Errors**: Ensure `ALLOWED_HOSTS` includes your Render URL.
 
 ## Architecture
 The application follows a clean, modular architecture:
