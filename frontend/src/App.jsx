@@ -48,7 +48,21 @@ export default function App() {
     })
   }
 
-  const heatPts = useMemo(() => !data ? [] : data.routes.flatMap(r => r.checkpoints.map(c => [c.lat, c.lng, WEIGHT[c.heat[hour]]])), [data, hour])
+  const heatPts = useMemo(() => {
+    if (!data) return []
+    const seen = new Set()
+    const pts = []
+    data.routes.forEach(r => {
+      r.checkpoints.forEach(c => {
+        const key = `${c.lat},${c.lng}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          pts.push([c.lat, c.lng, WEIGHT[c.heat[hour]]])
+        }
+      })
+    })
+    return pts
+  }, [data, hour])
   const geoms = useMemo(() => data ? data.routes.map(r => r.geometry) : [], [data])
   const route = data?.routes[sel]
 

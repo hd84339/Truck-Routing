@@ -3,3 +3,4 @@ dist
 __pycache__
 *.pyc
 backend/frontend_dist
+.env
